@@ -37,3 +37,5 @@ urlpatterns = [
     path('profiles/all/', views.ProfileListView.as_view(), name = 'profiles'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+handler404 = 'myapp.views.handling_404'
