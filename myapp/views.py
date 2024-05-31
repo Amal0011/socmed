@@ -2,6 +2,10 @@ from django.forms.models import BaseModelForm
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_control
+
 from django.contrib.auth.models import User
 from django.views.generic import CreateView, FormView, TemplateView, UpdateView, ListView, DetailView
 from django.urls import reverse_lazy
@@ -10,6 +14,16 @@ from django.contrib.auth import authenticate, login, logout
 
 from myapp.models import UserProfile, Posts, Comments
 from myapp.forms import SignUpForm, LoginForm, ProfileEditForm, PostForm, CoverPicForm
+
+
+def sign_required(fn):
+
+    def wrapper(request, *args, **kw):
+        if not request.user.is_authenticated:
+            return redirect("signin")
+        return fn(request, *args, **kw)
+    return wrapper
+
 
 class SignUpView(CreateView):
     model = User
@@ -45,19 +59,22 @@ class SignInView(FormView):
 
 
 
-
+@method_decorator(cache_control(no_cache=True, must_revalidate=True, no_store=True), name = 'dispatch')
 class IndexView(CreateView, ListView):
     template_name = "index.html"
     form_class = PostForm
     model = Posts
     context_object_name = "posts"
     success_url = reverse_lazy("index")
-    def form_valid(self, form):
+
+
+    def form_valid(self, form):  
         form.instance.user = self.request.user
         return super().form_valid(form)
+        
 
 
-
+@method_decorator(cache_control(no_cache=True, must_revalidate=True, no_store=True), name = 'dispatch')
 class ProfileEditView(UpdateView):
     model = UserProfile
     form_class = ProfileEditForm
@@ -103,9 +120,17 @@ def change_cover_pic_view(request,*args,**kw):
         return redirect("profiledetail", pk=id)
     return redirect("profiledetail", pk=id)
 
+@method_decorator(cache_control(no_cache=True, must_revalidate=True, no_store=True), name = 'dispatch')
 class ProfileListView(ListView):
     model = UserProfile
     template_name = "profile-list.html"
     context_object_name = "profiles"
 
     
+def handling_404(request, exception):
+    return render(request, '404.html', {})
+
+def logoutView(request, *args, **kw):
+    logout(request)
+    return redirect("signin")
+

@@ -16,6 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.contrib.auth.decorators import login_required
 
 from myapp import views
 
@@ -27,7 +28,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('register/',views.SignUpView.as_view(),name='register'),
     path('',views.SignInView.as_view(),name='signin'),
-    path('index/',views.IndexView.as_view(),name='index'),
+    path('logout/',views.logoutView, name='signout'),
+    path('index/', login_required(views.IndexView.as_view()),name='index'),
     path('profiles/<int:pk>/change/',views.ProfileEditView.as_view(),name='profile-edit'),
     path('posts/<int:pk>/like/',views.add_like_view,name='addlike'),
     path('posts/<int:pk>/comments/add/',views.add_comment_view,name='addcomment'),
@@ -37,3 +39,5 @@ urlpatterns = [
     path('profiles/all/', views.ProfileListView.as_view(), name = 'profiles'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+handler404 = 'myapp.views.handling_404'
