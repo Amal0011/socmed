@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+
 from myapp import views
 
 from django.conf import settings
@@ -27,7 +28,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('register/',views.SignUpView.as_view(),name='register'),
     path('',views.SignInView.as_view(),name='signin'),
-    path('index/',views.IndexView.as_view(),name='index'),
+    path('logout/',views.logoutView, name='signout'),
+    path('index/', views.IndexView.as_view(),name='index'),
     path('profiles/<int:pk>/change/',views.ProfileEditView.as_view(),name='profile-edit'),
     path('posts/<int:pk>/like/',views.add_like_view,name='addlike'),
     path('posts/<int:pk>/comments/add/',views.add_comment_view,name='addcomment'),
